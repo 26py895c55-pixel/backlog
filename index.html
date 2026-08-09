@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backlog-Tracker</title>
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Backlog">
+<meta name="theme-color" content="#101219">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#101219; --panel:#181B25; --panel2:#1F2331; --line:#2A2E3C;
+    --text:#E7E5E0; --muted:#8E93A3; --amber:#E0A458;
+    --yes:#67C27C; --mid:#D8AE4C; --no:#C46A60;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--ink);color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.55;
+    padding:26px 16px 70px;}
+  .wrap{max-width:840px;margin:0 auto;}
+
+  header{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:20px;}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--amber);margin:0 0 8px;}
+  h1{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:40px;line-height:1;
+    margin:0 0 10px;text-transform:uppercase;}
+  .lede{color:var(--muted);margin:0;max-width:58ch;font-size:14px;}
+
+  #banner{margin:0 0 18px;padding:10px 13px;border:1px solid var(--line);
+    border-left:3px solid var(--amber);background:var(--panel);
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--muted);}
+  #banner.ok{border-left-color:var(--yes);}
+  #banner.bad{border-left-color:var(--no);}
+
+  .stats{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 22px;}
+  .stat{background:var(--panel);border:1px solid var(--line);padding:10px 13px;flex:1 1 140px;}
+  .stat b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:600;line-height:1.15;}
+  .stat span{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--muted);}
+
+  h2{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.08em;
+    font-size:18px;font-weight:600;margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line);}
+  .hint{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:.04em;
+    color:var(--muted);margin:0 0 12px;}
+
+  details{background:var(--panel);border-bottom:1px solid var(--line);border-left:3px solid var(--muted);}
+  details.yes{border-left-color:var(--yes);}
+  details.mid{border-left-color:var(--mid);}
+  details.no{border-left-color:var(--no);}
+  details.done{opacity:.5;}
+  details.done .title{text-decoration:line-through;}
+
+  summary{display:grid;grid-template-columns:auto 26px 1fr auto;gap:0 10px;align-items:center;
+    padding:9px 10px;cursor:pointer;list-style:none;}
+  summary::-webkit-details-marker{display:none;}
+  summary:hover{background:var(--panel2);}
+  summary:focus-visible{outline:2px solid var(--amber);outline-offset:-2px;}
+
+  .move{display:flex;flex-direction:column;gap:2px;}
+  .move button{background:var(--panel2);color:var(--muted);border:1px solid var(--line);
+    font-size:9px;line-height:1;padding:3px 5px;cursor:pointer;font-family:monospace;}
+  .move button:hover{color:var(--amber);border-color:var(--amber);}
+  .move button:disabled{opacity:.25;cursor:default;}
+
+  .num{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);}
+  .title{font-weight:600;font-size:14.5px;}
+  .date{font-family:'JetBrains Mono',monospace;font-size:12.5px;white-space:nowrap;text-align:right;}
+  .date small{display:block;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+  .meta{grid-column:3 / 5;font-size:12px;color:var(--muted);margin-top:1px;}
+  .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9.5px;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber);
+    padding:1px 5px;margin-left:6px;vertical-align:1px;}
+
+  .body{padding:4px 14px 18px;background:var(--panel2);}
+  .subhead{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--amber);margin:14px 0 8px;}
+  .hltb{display:flex;gap:7px;flex-wrap:wrap;}
+  .hltb div{flex:1 1 105px;border:1px solid var(--line);background:var(--ink);padding:7px 9px;}
+  .hltb b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:600;line-height:1.15;}
+  .hltb input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+    font-family:'Barlow Condensed',sans-serif;font-size:21px;font-weight:600;padding:1px 5px;
+    color-scheme:dark;}
+  .hltb div.plan input{color:var(--amber);}
+  .hltb span{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--muted);}
+  .hltb div.plan{border-color:var(--amber);}
+  .hltb div.plan b{color:var(--amber);}
+
+  .track{border:1px solid var(--line);background:var(--ink);padding:12px 13px;}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .row:last-child{margin-bottom:0;}
+  .row label{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted);min-width:96px;}
+  input[type=number],input[type=date],textarea{
+    background:var(--panel2);border:1px solid var(--line);color:var(--text);
+    font-family:'JetBrains Mono',monospace;font-size:13px;padding:5px 8px;
+    color-scheme:dark;}
+  input[type=number],input[type=date]{width:110px;}
+  textarea{width:100%;min-height:90px;resize:vertical;line-height:1.4;font-size:11px;}
+  input:focus,textarea:focus{outline:2px solid var(--amber);outline-offset:-1px;}
+  .check{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  input[type=checkbox]{appearance:none;width:19px;height:19px;border:1px solid var(--line);
+    background:var(--panel2);cursor:pointer;position:relative;flex:0 0 19px;}
+  input[type=checkbox]:checked{border-color:var(--yes);}
+  input[type=checkbox]:checked::after{content:"✓";position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;color:var(--yes);font-size:14px;}
+  .rest{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--amber);}
+
+  .set dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 14px;font-size:13.5px;}
+  .set dt{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted);padding-top:3px;white-space:nowrap;}
+  .set dd{margin:0;}
+
+  .note{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);
+    padding:13px 15px;margin-top:8px;font-size:13.5px;color:var(--muted);}
+  .note b{color:var(--text);font-weight:600;}
+  ul.plain{margin:8px 0 0;padding-left:18px;}
+  ul.plain li{margin-bottom:5px;}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0;}
+  button.tb{background:var(--panel);border:1px solid var(--line);color:var(--muted);
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;padding:8px 13px;cursor:pointer;}
+  button.tb:hover{color:var(--amber);border-color:var(--amber);}
+  button.tb.primary{color:var(--text);border-color:var(--amber);}
+
+  table.ov{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);}
+  table.ov th{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--muted);text-align:left;padding:7px 9px;
+    border-bottom:1px solid var(--line);font-weight:400;}
+  table.ov td{padding:7px 9px;border-bottom:1px solid var(--line);}
+  table.ov tr.sum td{color:var(--amber);font-weight:600;}
+  footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--muted);}
+
+  @media (max-width:540px){
+    h1{font-size:30px;}
+    summary{grid-template-columns:auto 1fr;gap:0 9px;}
+    .num{display:none;}
+    .date{grid-column:2;text-align:left;font-size:12px;}
+    .date small{display:inline;margin-right:5px;}
+    .meta{grid-column:2;}
+    .set dl{grid-template-columns:1fr;gap:2px;}
+    .set dt{padding-top:8px;}
+    .row label{min-width:auto;width:100%;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Backlog-Tracker · Basis 24.07.2026</p>
+    <h1>Ein Spiel nach dem anderen</h1>
+    <p class="lede">Abhaken, Ist-Stunden eintragen, Reihenfolge ändern — die Termine rechnen sich jedes Mal neu.</p>
+  </header>
+
+  <p id="banner">Speicher wird geprüft …</p>
+
+  <div class="stats" id="stats"></div>
+
+  <h2>Reihenfolge</h2>
+  <p class="hint">↑↓ verschieben · Eintrag antippen zum Aufklappen</p>
+  <div id="list"></div>
+
+  <h2>Tatsächlich gebrauchte Zeit</h2>
+  <div id="overview"></div>
+  <div class="toolbar">
+    <label class="check" style="font-size:10.5px">
+      <input type="checkbox" id="usemeasured"> Termine mit gemessener Rate rechnen
+    </label>
+  </div>
+
+  <div class="toolbar">
+    <button class="tb primary" id="save">Jetzt speichern</button>
+    <button class="tb" id="reset">Zurücksetzen</button>
+  </div>
+
+  <h2>Sicherung</h2>
+  <div class="note">
+    Der Browser-Speicher ist bequem, aber nicht sicher: Er verschwindet beim Löschen der Websitedaten und im privaten Modus. <b>Verlass dich für den dauerhaften Stand auf „Als Datei sichern"</b> — die Datei landet in deiner Dateien-App und übersteht alles. Vor jeder längeren Pause und vor jedem Update einmal drücken.
+  </div>
+  <div style="margin-top:10px">
+    <textarea id="dump" spellcheck="false" placeholder="Stand erscheint hier"></textarea>
+    <div class="toolbar">
+      <button class="tb" id="export">Stand anzeigen</button>
+      <button class="tb" id="copy">Kopieren</button>
+      <button class="tb" id="importbtn">Eingefügten Stand übernehmen</button>
+      <button class="tb primary" id="filesave">Als Datei sichern</button>
+      <button class="tb" id="fileload">Datei laden</button>
+      <input type="file" id="fileinput" accept=".json,application/json" style="display:none">
+    </div>
+  </div>
+
+  <h2>Rechengrundlage</h2>
+  <div class="note">
+    <ul class="plain">
+      <li><b>Oktober bis März:</b> 1,5 h pro Tag. <b>April bis September:</b> 0,8 h pro Tag.</li>
+      <li>Restzeit = Plan-Stunden minus eingetragene Ist-Stunden.</li>
+      <li>Abgehakte Spiele fallen aus der Rechnung, die folgenden Termine rutschen nach vorne.</li>
+      <li>Der Plan startet immer am heutigen Tag.</li>
+    </ul>
+  </div>
+
+  <h2>LSFG — Grundrezept</h2>
+  <div class="note">
+    Installation über das <b>Decky-LSFG-VK-Plugin</b> aus dem Decky-Store, Lossless Scaling musst du auf Steam besitzen.
+    <ul class="plain">
+      <li><b>Multiplikator X2</b>, mehr bringt auf sieben Zoll nur Latenz.</li>
+      <li><b>Flow Scale 50 %</b>, Performance Mode an.</li>
+      <li><b>Basis-Framerate hart cappen</b> auf die Hälfte der Zielrate — 30→60 oder 45→90.</li>
+      <li>Nicht sinnvoll bei stabilen 60 fps, bei Pixelart und überall dort, wo Eingabelatenz wehtut.</li>
+      <li>Das Upscaling-Menü ist unter SteamOS ausgeblendet — für die Auflösung weiterhin FSR im Deck-Menü.</li>
+    </ul>
+  </div>
+
+  <div class="note" style="margin-top:14px">
+    Die vorbelegten HLTB-Zeiten sind <b>Schätzungen, keine abgerufenen Werte</b> — HowLongToBeat lässt sich nicht automatisch auslesen. Trag die echten Zahlen direkt in die Felder ein, sie werden mitgespeichert. Die Deck-Settings sind Startpunkte zum Nachjustieren.
+  </div>
+
+  <footer>v7 · Backlog-Tracker</footer>
+</div>
+
+<script>
+window.onerror = function(msg, src, line, col){
+  var el = document.getElementById("list");
+  if(el) el.innerHTML = '<div class="note" style="border-left-color:#C46A60">'
+    + '<b>Skriptfehler</b><br>' + msg + '<br>Zeile ' + line + ':' + col + '</div>';
+  return false;
+};
+const GAMES = [
+  {id:"mafia", t:"Mafia: Definitive Edition", deck:"mid", meta:"Action-Adventure · modern",
+   hltb:[12,16,22], plan:16, ist:16, done:true, doneDate:"2026-07-26",
+   set:{"TDP":"9–10 W","Cap":"40 fps","Auflösung":"1280×800, FSR aus","Details":"Mittel, Schatten hoch","LSFG":"X2 auf 30er-Basis bei 90 Hz — die Verfolgungsjagden profitieren"}},
+
+  {id:"deadspace", t:"Dead Space Remake", deck:"mid", meta:"Survival-Horror · modern",
+   hltb:[13,17,24], plan:17, ist:17, done:true, doneDate:"2026-07-31",
+   set:{"TDP":"13–15 W","Cap":"30 fps","Auflösung":"1152×720 + FSR Qualität","Details":"Niedrig/Mittel, Volumetrik niedrig","LSFG":"Klarer Kandidat. X2 auf 30er-Basis, Flow Scale 50 %. Horror lebt von Atmosphäre, nicht von Reaktionszeit"}},
+
+  {id:"dq3", t:"Dragon Quest III HD-2D", deck:"yes", meta:"JRPG · HD-2D",
+   hltb:[35,55,75], plan:55, ist:13,
+   set:{"TDP":"7–8 W","Cap":"60 fps","Auflösung":"nativ 1280×800","Details":"Hoch","LSFG":"Unnötig, hält 60 fps ohne Hilfe. Akku ~5 h"}},
+
+  {id:"delta", t:"MGS Delta: Snake Eater", deck:"no", meta:"Stealth · modern",
+   hltb:[15,22,35], plan:22, ist:0,
+   set:{"TDP":"15 W (Anschlag)","Cap":"30 fps, oft nicht gehalten","Auflösung":"960×600 + FSR Balanced","Details":"alles niedrig, Lumen aus","LSFG":"Eher nicht. Enges Wachen-Timing plus instabile Basisrate — schlechte Kombination"}},
+
+  {id:"horizon", t:"Horizon Zero Dawn", deck:"mid", meta:"Open World · modern",
+   hltb:[23,34,47], plan:34, ist:0,
+   set:{"TDP":"12–14 W","Cap":"30 fps","Auflösung":"1152×720 + FSR Qualität","Details":"Original-Preset, Wolken runter","LSFG":"Sehr gut geeignet. X2 auf 30 → 60. Leichtes Ghosting an Grasrändern"}},
+
+  {id:"ff5", t:"FF5 Pixel Remaster", deck:"yes", meta:"JRPG · Pixel",
+   hltb:[26,35,52], plan:35, ist:23,
+   set:{"TDP":"5–6 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal","LSFG":"Nein. Interpolation macht Pixelart-Kanten matschig. Akku ~7 h"}},
+
+  {id:"jedi", t:"Star Wars Jedi: Survivor", deck:"no", meta:"Action-Adventure · modern",
+   hltb:[24,35,55], plan:35, ist:0,
+   set:{"TDP":"15 W","Cap":"30 fps","Auflösung":"960×600 + FSR Balanced","Details":"alles niedrig, RT aus","LSFG":"Nur als Notlösung. In Stadtgebieten bricht die Basisrate zu stark ein"}},
+
+  {id:"sosdlc", t:"Sea of Stars: Throes of the Watchmaker", deck:"yes", meta:"JRPG-DLC \u00b7 Pixel",
+   hltb:[8,9,12], plan:9, ist:0,
+   set:{"TDP":"5\u20137 W","Cap":"60 fps","Aufl\u00f6sung":"nativ","Details":"maximal \u2014 l\u00e4uft auf dem Deck m\u00fchelos","LSFG":"Nein, bei Pixelart kontraproduktiv und ohnehin unn\u00f6tig. Akku ~6 h"}},
+
+  {id:"suiko1", t:"Suikoden I (HD Remaster)", deck:"yes", meta:"Retro-JRPG · 2D",
+   hltb:[20,25,35], plan:25, ist:0,
+   set:{"TDP":"5–7 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal","LSFG":"Nein, nicht nötig. Akku ~6 h"}},
+
+  {id:"gow", t:"God of War Ragnarök", deck:"mid", meta:"Action-Adventure · modern",
+   hltb:[26,40,55], plan:40, ist:0,
+   set:{"TDP":"13–15 W","Cap":"30 fps","Auflösung":"1152×720 + FSR Qualität","Details":"Original-Preset","LSFG":"Bedingt. In Erkundungsabschnitten ja, für Bosskämpfe wegen der Parry-Fenster abschalten"}},
+
+  {id:"ff12", t:"FF12: The Zodiac Age", deck:"yes", meta:"JRPG · Retro-Remaster",
+   hltb:[60,85,130], plan:85, ist:0,
+   set:{"TDP":"7–9 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal, 4× Fast-Forward nutzen","LSFG":"Unnötig. Akku ~5 h — der beste Reisetitel im Plan"}},
+
+  {id:"racer", t:"Star Wars: Galactic Racer", deck:"mid", tag:"Sale", meta:"Arcade-Racer · modern",
+   hltb:[15,25,45], plan:25, ist:0,
+   set:{"TDP":"13–15 W (geschätzt)","Cap":"40 fps anstreben","Auflösung":"1152×720 + FSR","Details":"UE5 — Lumen zuerst abschalten","LSFG":"Vorsichtig testen. Latenzempfindlich, aber der konstante Vorwärtsfluss interpoliert sauber"}},
+
+  {id:"ffres", t:"Final Fantasy Resonance", deck:"yes", tag:"Sale", meta:"JRPG · HD-2D",
+   hltb:[32,48,80], plan:48, ist:0,
+   set:{"TDP":"7–9 W (Prognose)","Cap":"60 fps","Auflösung":"nativ 1280×800","Details":"Hoch — HD-2D-Titel laufen auf dem Deck traditionell sehr gut","LSFG":"Nein. Bei HD-2D verwischt Interpolation die Pixelkanten, und nötig ist es ohnehin nicht"}},
+
+  {id:"castlevania", t:"Castlevania: Belmont's Curse", deck:"yes", tag:"Sale", meta:"Metroidvania · 2D",
+   hltb:[16,25,38], plan:25, ist:0,
+   set:{"TDP":"6–8 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal","LSFG":"Nein. Präzise Sprünge — jede Millisekunde Latenz kostet dich direkt Leben"}},
+
+  {id:"tits1", t:"Trails in the Sky 1st Chapter", deck:"yes", meta:"JRPG \u00b7 3D-Remake",
+   hltb:[38,45,60], plan:45, ist:15,
+   set:{"TDP":"9\u201311 W","Cap":"60 fps","Aufl\u00f6sung":"nativ 1280\u00d7800","Details":"Hoch \u2014 l\u00e4uft auf dem Deck sehr sauber","LSFG":"Nicht n\u00f6tig, h\u00e4lt 60 fps. Rundenkampf w\u00fcrde Latenz zwar verzeihen, aber es bringt nichts. Akku ~4,5 h"}},
+
+  {id:"halo2", t:"Halo 2 (MCC)", deck:"yes", meta:"Ego-Shooter · Remaster",
+   hltb:[9,11,15], plan:11, ist:0,
+   set:{"TDP":"8–10 W","Cap":"60 fps","Auflösung":"nativ, Anniversary-Grafik","Details":"maximal — MCC ist bestens optimiert","LSFG":"Nein. 60 fps stehen problemlos, und beim Zielen mit dem Stick verträgt ein Shooter keine Zusatzlatenz. Akku ~4,5 h"}},
+
+  {id:"tits2", t:"Trails in the Sky 2nd Chapter", deck:"yes", tag:"Sale", meta:"JRPG \u00b7 3D-Remake",
+   hltb:[50,60,80], plan:60, ist:0,
+   set:{"TDP":"9\u201311 W","Cap":"60 fps","Aufl\u00f6sung":"nativ 1280\u00d7800","Details":"Hoch \u2014 gleiche Engine wie 1st Chapter","LSFG":"Nicht n\u00f6tig. Clear-Data aus Teil 1 aufheben, der \u00dcbertrag bringt Boni. Akku ~4,5 h"}},
+
+  {id:"bloodstained", t:"Bloodstained: Ritual of the Night", deck:"yes", tag:"Sale", meta:"Metroidvania \u00b7 2.5D",
+   hltb:[18,26,40], plan:26, ist:0,
+   set:{"TDP":"7\u20139 W","Cap":"60 fps","Aufl\u00f6sung":"nativ 1280\u00d7800","Details":"Hoch \u2014 l\u00e4uft nach den Patches sauber","LSFG":"Nein. Pr\u00e4zise Spr\u00fcnge und Konter vertragen die Zusatzlatenz schlecht. Akku ~5 h"}},
+
+  {id:"dq11", t:"Dragon Quest XI S", deck:"yes", meta:"JRPG · stilisiert",
+   hltb:[65,95,135], plan:95, ist:0,
+   set:{"TDP":"9–11 W","Cap":"60 fps","Auflösung":"nativ, FSR aus","Details":"Hoch","LSFG":"Nicht nötig. Für 90 Hz: X2 auf 45er-Cap läuft sauber, Rundenkämpfe verzeihen Latenz"}},
+
+  {id:"mgs5", t:"Metal Gear Solid V", deck:"yes", meta:"Stealth Open World · modern",
+   hltb:[45,80,165], plan:80, ist:0,
+   set:{"TDP":"8–10 W","Cap":"60 fps","Auflösung":"nativ","Details":"Hoch — die Fox Engine ist ein Wunderwerk","LSFG":"Nein. 60 fps stehen bombenfest, Akku ~4,5 h"}},
+
+  {id:"ff8", t:"FF8 Remastered", deck:"yes", meta:"JRPG · Pre-Rendered",
+   hltb:[40,50,80], plan:50, ist:13,
+   set:{"TDP":"5–6 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal, Boost-Funktionen fürs Tempo","LSFG":"Nein. Pre-Rendered Hintergründe geben mit Interpolation hässliche Kanten. Akku ~7 h"}},
+
+  {id:"elden", t:"Elden Ring", deck:"mid", meta:"Souls · modern",
+   hltb:[60,100,135], plan:100, ist:0,
+   set:{"TDP":"14–15 W","Cap":"30 fps","Auflösung":"1152×720 + FSR Qualität","Details":"Mittel, Gras und Schatten niedrig","LSFG":"Abraten. Parry- und Rollenfenster leiden mehr, als die Optik gewinnt"}},
+
+  {id:"suiko2", t:"Suikoden II (HD Remaster)", deck:"yes", meta:"Retro-JRPG · 2D",
+   hltb:[26,35,50], plan:35, ist:0,
+   set:{"TDP":"5–7 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal","LSFG":"Nein. Reiner Reisetitel, Akku ~6 h"}},
+
+  {id:"ff16", t:"Final Fantasy XVI", deck:"no", meta:"Action-JRPG · modern",
+   hltb:[35,50,75], plan:50, ist:0,
+   set:{"TDP":"15 W","Cap":"30 fps","Auflösung":"960×600 + FSR Balanced","Details":"alles niedrig","LSFG":"Nur bedingt. Stellenweise fällt die Basisrate unter 25 fps"}},
+
+  {id:"ff7rev", t:"FF7: Revelation", deck:"no", tag:"Sale", meta:"Action-JRPG · modern",
+   hltb:[55,95,180], plan:95, ist:0,
+   set:{"TDP":"15 W (Prognose)","Cap":"30 fps, vermutlich nicht durchgehend","Auflösung":"960×600 + FSR","Details":"unbekannt — Rebirth brauchte auf dem Deck alles auf niedrig","LSFG":"Wahrscheinlich der einzige Weg zu einem flüssigen Bild, falls es überhaupt läuft. Rebirth war grenzwertig, Revelation soll deutlich größer sein"}},
+
+  {id:"disco", t:"Disco Elysium", deck:"yes", meta:"Text-RPG · isometrisch",
+   hltb:[21,30,40], plan:30, ist:0,
+   set:{"TDP":"5–7 W","Cap":"40 fps reicht","Auflösung":"nativ","Details":"Hoch","LSFG":"Sinnlos bei einem Spiel, in dem du zu 90 % liest. Akku ~6 h"}},
+
+  {id:"halo3", t:"Halo 3 (MCC)", deck:"yes", meta:"Ego-Shooter · Remaster",
+   hltb:[8,10,15], plan:10, ist:0,
+   set:{"TDP":"8–10 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal — läuft mit viel Reserve","LSFG":"Nein, gleiche Logik wie Teil 2: Shooter-Zielen und Frame-Generation-Latenz vertragen sich nicht. Akku ~4,5 h"}},
+
+  {id:"gta6", t:"Grand Theft Auto VI", deck:"no", tag:"Sale", meta:"Open World · modern",
+   hltb:[40,65,120], plan:65, ist:0,
+   set:{"TDP":"—","Cap":"—","Auflösung":"—","Details":"Zum Start nur PS5 und Xbox Series, keine PC-Fassung angekündigt","LSFG":"Nicht bewertbar. Ohne PC-Version gibt es nichts, was auf dem Deck laufen könnte — und selbst dann wäre die Hardware vermutlich überfordert"}}
+];
+
+const KEY = "backlog-v8";
+const LABELS = ["Hauptstory","Main + Extras","Komplettist"];
+const byId = Object.fromEntries(GAMES.map(g => [g.id, g]));
+const DEFAULT_ORDER = GAMES.map(g => g.id);
+
+const fresh = () => ({
+  order: DEFAULT_ORDER.slice(),
+  s: Object.fromEntries(GAMES.map(g => [g.id, {done:!!g.done, doneDate:g.doneDate || null, startDate:g.startDate || null, ist:g.ist, plan:g.plan, hltb:g.hltb.slice()}]))
+});
+let state = fresh();
+
+// Gespeicherte Reihenfolge übernehmen und fehlende (neu ergänzte) Spiele an ihrer Sollposition einfügen
+function mergeOrder(savedOrder){
+  let merged = savedOrder.filter(id => byId[id]);
+  DEFAULT_ORDER.forEach((id, idx) => {
+    if(!merged.includes(id)) merged.splice(Math.min(idx, merged.length), 0, id);
+  });
+  return merged;
+}
+
+/* ---------- Speicherschicht: nimmt den ersten Weg, der wirklich funktioniert ---------- */
+const banner = document.getElementById("banner");
+function say(msg, cls){ banner.textContent = msg; banner.className = cls || ""; }
+
+let backend = null; // "artefakt" | "browser" | null
+
+async function testArtifactStore(){
+  try{
+    if(typeof window.storage !== "object" || !window.storage || typeof window.storage.set !== "function") return false;
+    const probe = await window.storage.set(KEY + "-probe", "1", false);
+    if(!probe) return false;
+    const back = await window.storage.get(KEY + "-probe", false);
+    return !!(back && back.value === "1");
+  }catch(e){ return false; }
+}
+
+function testLocalStore(){
+  try{
+    localStorage.setItem(KEY + "-probe", "1");
+    const ok = localStorage.getItem(KEY + "-probe") === "1";
+    localStorage.removeItem(KEY + "-probe");
+    return ok;
+  }catch(e){ return false; }
+}
+
+async function readSaved(){
+  if(backend === "artefakt"){
+    try{
+      const r = await window.storage.get(KEY, false);
+      return r && r.value ? JSON.parse(r.value) : null;
+    }catch(e){ return null; }
+  }
+  if(backend === "browser"){
+    try{
+      const v = localStorage.getItem(KEY);
+      return v ? JSON.parse(v) : null;
+    }catch(e){ return null; }
+  }
+  return null;
+}
+
+async function writeSaved(){
+  if(backend === "artefakt"){
+    await window.storage.set(KEY, JSON.stringify(state), false);
+    return true;
+  }
+  if(backend === "browser"){
+    localStorage.setItem(KEY, JSON.stringify(state));
+    return true;
+  }
+  return false;
+}
+
+function applySaved(saved){
+  if(saved && Array.isArray(saved.order)) state.order = mergeOrder(saved.order);
+  if(saved && saved.s) for(const id in saved.s) if(state.s[id]) state.s[id] = {...state.s[id], ...saved.s[id]};
+}
+
+async function load(){
+  if(await testArtifactStore()) backend = "artefakt";
+  else if(testLocalStore()) backend = "browser";
+
+  if(!backend){
+    say("Kein dauerhafter Speicher in dieser Ansicht — Stand unten kopieren und sichern", "bad");
+    return;
+  }
+  const saved = await readSaved();
+  if(saved){
+    applySaved(saved);
+    say("Stand geladen (Speicher: " + backend + ")", "ok");
+  }else{
+    say("Speicher bereit (" + backend + ") — noch kein Stand hinterlegt", "ok");
+  }
+}
+
+let timer;
+async function persist(loud){
+  if(!backend){
+    if(loud) say("Kein dauerhafter Speicher — Stand unten kopieren und sichern", "bad");
+    return;
+  }
+  try{
+    await writeSaved();
+    say("Gespeichert " + new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"}) + " (" + backend + ")", "ok");
+  }catch(err){
+    say("Speichern fehlgeschlagen (" + (err && err.message ? err.message : "unbekannt") + ") — Sicherung unten nutzen", "bad");
+  }
+}
+function save(){ clearTimeout(timer); timer = setTimeout(() => persist(false), 300); }
+
+/* ---------- Terminrechnung ---------- */
+let useMeasured = false;
+const rate = d => {
+  if(useMeasured){ const mo = measuredOverall(); if(mo) return mo.rate; }
+  const m = d.getMonth() + 1; return (m >= 10 || m <= 3) ? 1.5 : 0.8;
+};
+const fmt = d => d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit",year:"numeric"});
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const planOf = id => (state.s[id].plan != null ? state.s[id].plan : byId[id].plan);
+const hltbOf = id => (state.s[id].hltb || byId[id].hltb);
+const rest = id => Math.max(planOf(id) - (state.s[id].ist || 0), 0);
+
+// Tats\u00e4chlich gemessene Spielrate eines abgeschlossenen Titels
+function measured(id){
+  const st = state.s[id];
+  if(!st.done || !st.startDate || !st.doneDate || !st.ist) return null;
+  const a = new Date(st.startDate + "T12:00:00"), b = new Date(st.doneDate + "T12:00:00");
+  const days = Math.round((b - a) / 86400000) + 1;
+  if(days < 1) return null;
+  return {days, rate: st.ist / days};
+}
+function measuredOverall(){
+  let h = 0, d = 0;
+  for(const id of state.order){
+    const m = measured(id);
+    if(m){ h += state.s[id].ist; d += m.days; }
+  }
+  return d > 0 ? {hours:h, days:d, rate:h/d} : null;
+}
+
+function schedule(){
+  const dates = {};
+  let cur = new Date(); cur.setHours(12,0,0,0);
+  let totalRest = 0, last = null;
+  for(const id of state.order){
+    if(state.s[id].done) continue;
+    let need = rest(id);
+    totalRest += need;
+    if(need <= 0){ dates[id] = new Date(cur); last = dates[id]; continue; }
+    while(need > 0){
+      need -= rate(cur);
+      if(need > 0) cur.setDate(cur.getDate() + 1);
+    }
+    dates[id] = new Date(cur);
+    last = dates[id];
+    cur.setDate(cur.getDate() + 1);
+  }
+  return {dates, totalRest, end:last};
+}
+
+/* ---------- Rendern ---------- */
+function render(){
+  const {dates, totalRest, end} = schedule();
+  const mo = measuredOverall();
+  const doneCount = state.order.filter(id => state.s[id].done).length;
+  const spent = state.order.reduce((a,id) => a + (state.s[id].ist || 0), 0);
+
+  document.getElementById("stats").innerHTML = `
+    <div class="stat"><b>${doneCount} / ${GAMES.length}</b><span>Durchgespielt</span></div>
+    <div class="stat"><b>${Math.round(totalRest)} h</b><span>Rest offen</span></div>
+    <div class="stat"><b>${Math.round(spent)} h</b><span>Bereits gespielt</span></div>
+    <div class="stat"><b>${end ? fmt(end) : "—"}</b><span>Voraussichtlich fertig</span></div>
+    <div class="stat"><b>${mo ? mo.rate.toFixed(2) + " h" : "—"}</b><span>Gemessen pro Tag</span></div>`;
+
+  const rows = state.order.filter(id => measured(id));
+  document.getElementById("overview").innerHTML = rows.length ? `
+    <table class="ov">
+      <tr><th>Spiel</th><th>Start</th><th>Ende</th><th>Tage</th><th>Std.</th><th>h/Tag</th></tr>
+      ${rows.map(id => {
+        const m = measured(id), st = state.s[id];
+        return `<tr><td>${byId[id].t}</td><td>${fmt(new Date(st.startDate+"T12:00:00"))}</td>
+          <td>${fmt(new Date(st.doneDate+"T12:00:00"))}</td><td>${m.days}</td>
+          <td>${st.ist}</td><td>${m.rate.toFixed(2)}</td></tr>`;
+      }).join("")}
+      ${mo ? `<tr class="sum"><td>Gesamt</td><td></td><td></td><td>${mo.days}</td><td>${mo.hours}</td><td>${mo.rate.toFixed(2)}</td></tr>` : ""}
+    </table>` :
+    `<p style="color:var(--muted);font-size:13.5px;margin:0">Noch keine Auswertung — trag bei einem abgehakten Spiel das Startdatum ein, dann erscheint hier deine tatsächliche Spielrate.</p>`;
+
+  const open = new Set([...document.querySelectorAll("details[open]")].map(d => d.dataset.id));
+  let pos = 0;
+
+  document.getElementById("list").innerHTML = state.order.map((id, i) => {
+    const g = byId[id], st = state.s[id];
+    if(!st.done) pos++;
+    const r = rest(id);
+    return `
+    <details data-id="${id}" class="${g.deck}${st.done ? " done" : ""}" ${open.has(id) ? "open" : ""}>
+      <summary>
+        <span class="move">
+          <button data-up="${id}" ${i === 0 ? "disabled" : ""}>▲</button>
+          <button data-down="${id}" ${i === state.order.length - 1 ? "disabled" : ""}>▼</button>
+        </span>
+        <span class="num">${st.done ? "✓" : String(pos).padStart(2,"0")}</span>
+        <span class="title">${g.t}${g.tag && !st.done ? `<span class="tag">${g.tag}</span>` : ""}</span>
+        <span class="date">${st.done
+            ? `<small>fertig</small>${st.doneDate ? fmt(new Date(st.doneDate + "T12:00:00")) : "—"}`
+            : `<small>geplant</small>${dates[id] ? fmt(dates[id]) : "—"}`}</span>
+        <span class="meta">${g.meta} · ${st.done ? `${st.ist || 0} h gespielt` : `${r} h offen`}</span>
+      </summary>
+      <div class="body">
+        <p class="subhead">Fortschritt</p>
+        <div class="track">
+          <div class="row">
+            <label class="check"><input type="checkbox" data-done="${id}" ${st.done ? "checked" : ""}> Durchgespielt</label>
+          </div>
+          <div class="row">
+            <label for="ist-${id}">Ist-Stunden</label>
+            <input type="number" id="ist-${id}" data-ist="${id}" min="0" step="0.5" value="${st.ist || 0}">
+            <span class="rest">${st.done ? "abgeschlossen" : r + " h offen von " + planOf(id) + " h"}</span>
+          </div>
+          <div class="row">
+            <label for="sd-${id}">Begonnen am</label>
+            <input type="date" id="sd-${id}" data-start="${id}" value="${st.startDate || ""}">
+          </div>
+          ${st.done ? `
+          <div class="row">
+            <label for="dd-${id}">Fertig am</label>
+            <input type="date" id="dd-${id}" data-date="${id}" value="${st.doneDate || ""}">
+          </div>
+          <div class="row">
+            <label>Gemessen</label>
+            <span class="rest">${measured(id) ? measured(id).days + " Tage \u00b7 " + measured(id).rate.toFixed(2) + " h/Tag" : "Startdatum eintragen"}</span>
+          </div>` : ""}
+        </div>
+
+        <p class="subhead">HowLongToBeat — Werte anpassbar</p>
+        <div class="hltb">
+          ${hltbOf(id).map((h,j) => `<div><input type="number" min="0" step="1" data-h="${id}:${j}" value="${h}"><span>${LABELS[j]}</span></div>`).join("")}
+          <div class="plan"><input type="number" min="0" step="1" data-plan="${id}" value="${planOf(id)}"><span>im Plan</span></div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin:6px 0 0">
+          <button class="tb" data-sync="${id}" style="padding:4px 9px">Main + Extras als Plan übernehmen</button>
+        </p>
+
+        <p class="subhead">Steam Deck</p>
+        <div class="set"><dl>
+          ${Object.entries(g.set).map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}
+        </dl></div>
+      </div>
+    </details>`;
+  }).join("");
+}
+
+/* ---------- Interaktion ---------- */
+document.addEventListener("click", e => {
+  const up = e.target.dataset?.up, down = e.target.dataset?.down;
+  if(!up && !down) return;
+  e.preventDefault(); e.stopPropagation();
+  const id = up || down;
+  const i = state.order.indexOf(id);
+  const j = up ? i - 1 : i + 1;
+  if(j < 0 || j >= state.order.length) return;
+  [state.order[i], state.order[j]] = [state.order[j], state.order[i]];
+  render(); save();
+});
+
+document.addEventListener("change", e => {
+  const d = e.target.dataset; if(!d) return;
+  if(d.done !== undefined){
+    const st = state.s[d.done];
+    st.done = e.target.checked;
+    if(st.done){
+      st.doneDate = st.doneDate || iso(new Date());
+      if(!st.ist) st.ist = byId[d.done].plan;
+    }
+    render(); save();
+  }else if(d.ist !== undefined){
+    state.s[d.ist].ist = Math.max(parseFloat(e.target.value) || 0, 0);
+    render(); save();
+  }else if(d.date !== undefined){
+    state.s[d.date].doneDate = e.target.value || null;
+    render(); save();
+  }else if(d.start !== undefined){
+    state.s[d.start].startDate = e.target.value || null;
+    render(); save();
+  }else if(d.h !== undefined){
+    const [id, j] = d.h.split(":");
+    if(!state.s[id].hltb) state.s[id].hltb = byId[id].hltb.slice();
+    state.s[id].hltb[+j] = Math.max(parseFloat(e.target.value) || 0, 0);
+    render(); save();
+  }else if(d.plan !== undefined){
+    state.s[d.plan].plan = Math.max(parseFloat(e.target.value) || 0, 0);
+    render(); save();
+  }
+});
+
+// "Main + Extras als Plan übernehmen"
+document.addEventListener("click", e => {
+  const id = e.target.dataset?.sync;
+  if(!id) return;
+  e.preventDefault(); e.stopPropagation();
+  state.s[id].plan = hltbOf(id)[1];
+  render(); save();
+});
+
+document.addEventListener("input", e => {
+  const id = e.target.dataset?.ist;
+  if(id === undefined) return;
+  state.s[id].ist = Math.max(parseFloat(e.target.value) || 0, 0);
+  save();
+});
+
+document.getElementById("usemeasured").addEventListener("change", e => {
+  useMeasured = e.target.checked;
+  render();
+});
+document.getElementById("save").addEventListener("click", () => persist(true));
+
+document.getElementById("reset").addEventListener("click", () => {
+  if(!confirm("Reihenfolge, Haken und Ist-Stunden auf den Ausgangsplan zurücksetzen?")) return;
+  state = fresh();
+  render();
+  persist(true);
+});
+
+/* ---------- Sicherung ---------- */
+const dump = document.getElementById("dump");
+document.getElementById("export").addEventListener("click", () => {
+  dump.value = JSON.stringify(state); dump.select();
+});
+document.getElementById("copy").addEventListener("click", async () => {
+  dump.value = JSON.stringify(state); dump.select();
+  try{ await navigator.clipboard.writeText(dump.value); say("Stand in die Zwischenablage kopiert", "ok"); }
+  catch(e){ say("Zwischenablage blockiert — Text markieren und manuell kopieren", "bad"); }
+});
+document.getElementById("filesave").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(state, null, 1)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const d = new Date();
+  a.href = url;
+  a.download = `backlog-stand-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  say("Datei erzeugt — in der Dateien-App ablegen", "ok");
+});
+
+document.getElementById("fileload").addEventListener("click", () => {
+  document.getElementById("fileinput").click();
+});
+document.getElementById("fileinput").addEventListener("change", e => {
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try{
+      const saved = JSON.parse(rd.result);
+      state = fresh();
+      applySaved(saved);
+      render(); persist(true);
+      say("Stand aus Datei geladen", "ok");
+    }catch(err){ say("Datei konnte nicht gelesen werden", "bad"); }
+  };
+  rd.readAsText(f);
+  e.target.value = "";
+});
+
+document.getElementById("importbtn").addEventListener("click", () => {
+  try{
+    const saved = JSON.parse(dump.value);
+    state = fresh();
+    applySaved(saved);
+    render();
+    persist(true);
+    say("Stand übernommen", "ok");
+  }catch(e){
+    say("Das war kein gültiger Stand", "bad");
+  }
+});
+
+function boot(){
+  try{ render(); }
+  catch(err){
+    document.getElementById("list").innerHTML =
+      '<div class="note" style="border-left-color:#C46A60"><b>Fehler beim Aufbau</b><br>'
+      + (err && err.message ? err.message : err) + '</div>';
+    throw err;
+  }
+}
+boot();
+load().then(boot).catch(() => boot());
+</script>
+</body>
+</html>
