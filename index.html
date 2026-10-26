@@ -307,7 +307,7 @@
     Die vorbelegten HLTB-Zeiten sind <b>Schätzungen, keine abgerufenen Werte</b> — HowLongToBeat lässt sich nicht automatisch auslesen. Trag die echten Zahlen direkt in die Felder ein, sie werden mitgespeichert. Die Deck-Settings sind Startpunkte zum Nachjustieren.
   </div>
 
-  <footer>Version 13 · Stand 11.10.2026 · Fortschritt &amp; Abschlussfeier</footer>
+  <footer>Version 14 · Stand 26.10.2026 · Tomb-Raider-Trilogie &amp; Crysis 2</footer>
 </div>
 
 <script>
@@ -339,11 +339,11 @@ const GAMES = [
    set:{"TDP":"15 W (Anschlag)","Cap":"30 fps, oft nicht gehalten","Auflösung":"960×600 + FSR Balanced","Details":"alles niedrig, Lumen aus","LSFG":"Eher nicht. Enges Wachen-Timing plus instabile Basisrate — schlechte Kombination"}},
 
   {id:"jedi", t:"Star Wars Jedi: Survivor", deck:"no", meta:"Action-Adventure · modern",
-   hltb:[24,35,55], plan:35, ist:22, startDate:"2026-09-22",
+   hltb:[24,35,55], plan:35, ist:36, done:true, doneDate:"2026-10-18", startDate:"2026-09-22",
    set:{"TDP":"15 W","Cap":"30 fps","Auflösung":"960×600 + FSR Balanced","Details":"alles niedrig, RT aus","LSFG":"Nur als Notlösung. In Stadtgebieten bricht die Basisrate zu stark ein"}},
 
   {id:"suiko1", t:"Suikoden I (HD Remaster)", deck:"yes", meta:"Retro-JRPG · 2D",
-   hltb:[20,25,35], plan:24, ist:0,
+   hltb:[20,25,35], plan:24, ist:14, startDate:"2026-10-17",
    set:{"TDP":"5–7 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal","LSFG":"Nein, nicht nötig. Akku ~6 h"}},
 
   {id:"bloodstained", t:"Bloodstained: Ritual of the Night", deck:"yes", tag:"Sale", meta:"Metroidvania \u00b7 2.5D",
@@ -358,13 +358,13 @@ const GAMES = [
    hltb:[8,9,12], plan:9, ist:0,
    set:{"TDP":"5\u20137 W","Cap":"60 fps","Aufl\u00f6sung":"nativ","Details":"maximal \u2014 l\u00e4uft auf dem Deck m\u00fchelos","LSFG":"Nein, bei Pixelart kontraproduktiv und ohnehin unn\u00f6tig. Akku ~6 h"}},
 
-  {id:"gow", t:"God of War Ragnarök", deck:"mid", meta:"Action-Adventure · modern",
-   hltb:[26,40,55], plan:43, ist:0,
-   set:{"TDP":"13–15 W","Cap":"30 fps","Auflösung":"1152×720 + FSR Qualität","Details":"Original-Preset","LSFG":"Bedingt. In Erkundungsabschnitten ja, für Bosskämpfe wegen der Parry-Fenster abschalten"}},
-
   {id:"ff5", t:"FF5 Pixel Remaster", deck:"yes", meta:"JRPG · Pixel",
    hltb:[26,35,52], plan:35, ist:23,
    set:{"TDP":"5–6 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal","LSFG":"Nein. Interpolation macht Pixelart-Kanten matschig. Akku ~7 h"}},
+
+  {id:"gow", t:"God of War Ragnarök", deck:"mid", meta:"Action-Adventure · modern",
+   hltb:[26,40,55], plan:43, ist:0,
+   set:{"TDP":"13–15 W","Cap":"30 fps","Auflösung":"1152×720 + FSR Qualität","Details":"Original-Preset","LSFG":"Bedingt. In Erkundungsabschnitten ja, für Bosskämpfe wegen der Parry-Fenster abschalten"}},
 
   {id:"ff12", t:"FF12: The Zodiac Age", deck:"yes", meta:"JRPG · Retro-Remaster",
    hltb:[60,85,130], plan:85, ist:0,
@@ -382,9 +382,29 @@ const GAMES = [
    hltb:[16,25,38], plan:25, ist:0,
    set:{"TDP":"6–8 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal","LSFG":"Nein. Präzise Sprünge — jede Millisekunde Latenz kostet dich direkt Leben"}},
 
+  {id:"tr2013", t:"Tomb Raider (2013)", deck:"yes", meta:"Action-Adventure \u00b7 Reboot",
+   hltb:[12,15,21], plan:15, ist:0,
+   set:{"Einordnung":"Teil 1 der Reboot-Trilogie \u2014 Ursprungsgeschichte auf Yamatai","St\u00e4rke":"straffste Erz\u00e4hlung der drei, d\u00fcsterer Ton, gutes Tempo","Schw\u00e4che":"Bruch zwischen Erz\u00e4hlung und Spiel \u2014 Lara t\u00f6tet zwei Minuten nach ihrem ersten Schock im Dutzend; technisch am \u00e4ltesten","Sitzung":"Lagerfeuer als Speicherpunkte, dicht genug f\u00fcr 1 h am St\u00fcck"}},
+
+  {id:"crysis2", t:"Crysis 2 Remastered", deck:"mid", meta:"Ego-Shooter \u00b7 modern",
+   hltb:[8,10,13], plan:10, ist:0,
+   set:{"Einordnung":"der aufwendigste der drei Remaster \u2014 \u00fcberarbeitete Texturen plus Echtzeit-Raytracing","Einstieg":"eigenst\u00e4ndig, neuer Protagonist; Teil 1 ist nicht n\u00f6tig","St\u00e4rke":"rundester Teil der Reihe, New York als Kulisse tr\u00e4gt","Hinweis":"Mehrspieler wurde in allen Remastern gestrichen"}},
+
   {id:"dq11", t:"Dragon Quest XI S", deck:"yes", meta:"JRPG · stilisiert",
    hltb:[65,95,135], plan:90, ist:0,
    set:{"TDP":"9–11 W","Cap":"60 fps","Auflösung":"nativ, FSR aus","Details":"Hoch","LSFG":"Nicht nötig. Für 90 Hz: X2 auf 45er-Cap läuft sauber, Rundenkämpfe verzeihen Latenz"}},
+
+  {id:"rise", t:"Rise of the Tomb Raider", deck:"mid", meta:"Action-Adventure \u00b7 modern",
+   hltb:[15,20,32], plan:18, ist:0,
+   set:{"Einordnung":"Teil 2 \u2014 gilt den meisten als der st\u00e4rkste der Trilogie","St\u00e4rke":"bestes Leveldesign, deutlich bessere optionale Gr\u00e4ber, Sibirien-Setting","Story":"Laras Besessenheit als Erbe des Vaters \u2014 tr\u00e4gt solide","Sitzung":"Lagerfeuer-Speicherpunkte, gut portionierbar"}},
+
+  {id:"halo3", t:"Halo 3 (MCC)", deck:"yes", meta:"Ego-Shooter · Remaster",
+   hltb:[8,10,15], plan:10, ist:0,
+   set:{"TDP":"8–10 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal — läuft mit viel Reserve","LSFG":"Nein, gleiche Logik wie Teil 2: Shooter-Zielen und Frame-Generation-Latenz vertragen sich nicht. Akku ~4,5 h"}},
+
+  {id:"shadow", t:"Shadow of the Tomb Raider", deck:"mid", meta:"Action-Adventure \u00b7 modern",
+   hltb:[14,23,35], plan:23, ist:0,
+   set:{"Einordnung":"Teil 3 und Abschluss \u2014 Peru, die verborgene Stadt Paititi","St\u00e4rke":"beste Optik und besten Gr\u00e4ber der Reihe, mehr Schleichen statt Schie\u00dfen","Schw\u00e4che":"schw\u00e4chste Geschichte: Lara l\u00f6st in Akt eins eine Apokalypse aus, danach wei\u00df das Spiel nicht recht wohin","Sitzung":"wie die Vorg\u00e4nger \u2014 dichte Speicherpunkte"}},
 
   {id:"mgs5", t:"Metal Gear Solid V", deck:"yes", meta:"Stealth Open World · modern",
    hltb:[45,80,165], plan:80, ist:0,
@@ -413,10 +433,6 @@ const GAMES = [
   {id:"disco", t:"Disco Elysium", deck:"yes", meta:"Text-RPG · isometrisch",
    hltb:[21,30,40], plan:33, ist:0,
    set:{"TDP":"5–7 W","Cap":"40 fps reicht","Auflösung":"nativ","Details":"Hoch","LSFG":"Sinnlos bei einem Spiel, in dem du zu 90 % liest. Akku ~6 h"}},
-
-  {id:"halo3", t:"Halo 3 (MCC)", deck:"yes", meta:"Ego-Shooter · Remaster",
-   hltb:[8,10,15], plan:10, ist:0,
-   set:{"TDP":"8–10 W","Cap":"60 fps","Auflösung":"nativ","Details":"maximal — läuft mit viel Reserve","LSFG":"Nein, gleiche Logik wie Teil 2: Shooter-Zielen und Frame-Generation-Latenz vertragen sich nicht. Akku ~4,5 h"}},
 
   {id:"gta6", t:"Grand Theft Auto VI", deck:"no", tag:"Sale", meta:"Open World · modern",
    hltb:[40,65,120], plan:65, ist:0,
@@ -957,7 +973,7 @@ boot();
 load().then(boot).catch(() => boot());
 
 /* ---------- Selbstaktualisierung ---------- */
-const APP_VERSION = 13;
+const APP_VERSION = 14;
 (async function checkVersion(){
   try{
     const r = await fetch("version.json?t=" + Date.now(), {cache:"no-store"});
